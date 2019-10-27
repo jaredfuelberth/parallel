@@ -35,9 +35,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.gis',
 
     'rest_framework',
     'api',
+    'rest_framework_gis',
 ]
 
 MIDDLEWARE = [
@@ -75,10 +77,16 @@ WSGI_APPLICATION = 'parallel.wsgi.application'
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 DATABASES = {
+    # 'default': {
+    #     'ENGINE': 'django.contrib.gis.db.backends.spatialite',
+    #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    # },
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': 'geodjango',
+        'USER': 'geosuper',
+        'PASSWORD': 'geosuper',
+    },
 }
 
 # Password validation
@@ -132,3 +140,5 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     ],
 }
+
+# GDAL_LIBRARY_PATH = '/Users/jaredfuelberth/PycharmProjects/parallel/data/Parking_Space_File.shp.xml'
