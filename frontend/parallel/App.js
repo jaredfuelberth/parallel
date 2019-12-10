@@ -1,11 +1,8 @@
 import React from 'react';
-import {Dimensions, StyleSheet} from 'react-native';
+import {Animated, Dimensions, StyleSheet, View} from 'react-native';
 import MapView from 'react-native-maps';
-import axios from 'axios';
 // import $ from 'jquery';
-import {meters} from  './data/meters.js';
-import View from "react-native-web/dist/exports/View";
-import Text from "react-native-web/dist/exports/Text";
+import {meters} from './data/meters.js';
 
 export default class App extends React.Component {
     constructor(props) {
@@ -90,8 +87,8 @@ export default class App extends React.Component {
                 region={{
                     latitude: 40.813618,
                     longitude: -96.702599,
-                    latitudeDelta: 0.0922,
-                    longitudeDelta: 0.0421,
+                    latitudeDelta: 0.0222,
+                    longitudeDelta: 0.0221,
                 }}
             >
                 {this.state.isLoading ? null : this.state.meters.map((meter, index) => {
@@ -111,6 +108,9 @@ export default class App extends React.Component {
                             title={title}
                             description={metadata}
                         >
+                            <Animated.View style={[styles.markerWrap]}>
+                                <View style={styles.marker}/>
+                            </Animated.View>
                         </MapView.Marker>
                     );
                 })}
@@ -131,10 +131,14 @@ const styles = StyleSheet.create({
         width: Dimensions.get('window').width,
         height: Dimensions.get('window').height,
     },
-      marker: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: "rgba(130,4,150, 0.9)",
-  },
+    marker: {
+        width: 8,
+        height: 8,
+        borderRadius: 4,
+        backgroundColor: "rgba(130,4,150, 0.9)",
+    },
+    markerWrap: {
+        alignItems: "center",
+        justifyContent: "center",
+    },
 });
