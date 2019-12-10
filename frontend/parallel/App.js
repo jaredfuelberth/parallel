@@ -2,7 +2,10 @@ import React from 'react';
 import {Animated, Dimensions, StyleSheet, View} from 'react-native';
 import MapView from 'react-native-maps';
 // import $ from 'jquery';
-import {meters} from './data/meters.js';
+import {meters} from './data/metersShort.js';
+import Constants from 'expo-constants';
+import * as Location from 'expo-location';
+import * as Permissions from 'expo-permissions';
 
 export default class App extends React.Component {
     constructor(props) {
@@ -12,11 +15,18 @@ export default class App extends React.Component {
             isLoading: true,
             markers: [],
             meters: [],
+            userLocation: null,
+            region: {
+                latitude: 40.813618,
+                longitude: -96.702599,
+                latitudeDelta: 0.0222,
+                longitudeDelta: 0.0221,
+            }
         };
     }
 
     getTheDatas() {
-        console.log(meters[0]['geom']['coordinates']);
+        // console.log(meters[0]['geom']['coordinates']);
         this.setState({meters: meters})
 
 
@@ -36,21 +46,46 @@ export default class App extends React.Component {
             });
     }
 
+    _getLocationAsync = async () => {
+        let {status} = await Permissions.askAsync(Permissions.LOCATION);
+        if (status !== 'granted') {
+            this.setState({
+                errorMessage: 'Permission to access location was denied',
+            });
+        }
+
+        let location = await Location.getCurrentPositionAsync({});
+        console.log(location['coords']);
+        this.setState({
+            region: {
+                latitude: location['coords']['latitude'],
+                longitude: location['coords']['longitude'],
+                latitudeDelta: 0.0222,
+                longitudeDelta: 0.0221,
+            }
+        });
+    };
+
     componentDidMount() {
         this.fetchMarkerData();
         this.getTheDatas();
+
+        if (Platform.OS === 'android' && !Constants.isDevice) {
+            this.setState({
+                errorMessage: 'Oops, this will not work on Sketch in an Android emulator. Try it on your device!',
+            });
+        } else {
+            this._getLocationAsync();
+        }
     }
 
     render() {
+        // console.log("RE-RENDERING");
         return (
             <MapView
                 style={{flex: 1}}
-                region={{
-                    latitude: 40.813618,
-                    longitude: -96.702599,
-                    latitudeDelta: 0.0222,
-                    longitudeDelta: 0.0221,
-                }}
+                region={this.state.region}
+                showsUserLocation={true}
             >
                 {this.state.isLoading ? null : this.state.meters.map((meter, index) => {
                     // console.log(this.state.meters);
@@ -59,16 +94,17 @@ export default class App extends React.Component {
                         longitude: meter['geom']['coordinates'][0],
                     };
 
-                    const metadata = `Status: hi\nOther: hello`;
-                    const title = 'title';
+                    const description = `Status: hi\nOther: hello`;
+                    const title = 'titles';
 
                     return (
                         <MapView.Marker
                             key={index}
                             coordinate={coords}
                             title={title}
-                            description={metadata}
+                            description={description}
                         >
+
                             <Animated.View style={[styles.markerWrap]}>
                                 <View style={styles.marker}/>
                             </Animated.View>
