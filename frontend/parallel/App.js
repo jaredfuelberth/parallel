@@ -16,45 +16,6 @@ export default class App extends React.Component {
     }
 
     getTheDatas() {
-        // var settings = {
-        //     "async": true,
-        //     "crossDomain": true,
-        //     "url": "http://127.0.0.1:8000/meters",
-        //     "method": "GET",
-        //     "headers": {
-        //         "Content-Type": "application/x-www-form-urlencoded",
-        //         "User-Agent": "PostmanRuntime/7.19.0",
-        //         "Accept": "*/*",
-        //         "Cache-Control": "no-cache",
-        //         "Postman-Token": "408e2ffd-8ae3-4afc-a4c1-7c967d61221f,149b6e9e-b3dc-4839-bdb7-bf7010fcb7f5",
-        //         "Accept-Encoding": "gzip, deflate",
-        //         "Referer": "http://127.0.0.1:8000/meters",
-        //         "Connection": "keep-alive",
-        //         "cache-control": "no-cache"
-        //     }
-        // }
-        //
-        // $.ajax(settings).done(function (response) {
-        //     console.log(response);
-        // });
-
-        // axios.get('http://127.0.0.1:8000/meters')
-        //     .then(res => {
-        //         console.log(res);
-        //     });
-
-        // fetch('http://127.0.0.1:8000/meters')
-        //     .then((response) => response.json())
-        //     .then((responseJson) => {
-        //         // this.setState({
-        //         //     isLoading: false,
-        //         //     markers: responseJson.stationBeanList,
-        //         // });
-        //         console.log(responseJson);
-        //     })
-        //     .catch((error) => {
-        //         console.log(error);
-        //     });
         console.log(meters[0]['geom']['coordinates']);
         this.setState({meters: meters})
 
