@@ -1,5 +1,5 @@
 import React from 'react';
-import {Animated, Dimensions, StyleSheet, View} from 'react-native';
+import {Animated, Dimensions, StyleSheet, Text, View} from 'react-native';
 import MapView from 'react-native-maps';
 // import $ from 'jquery';
 import {meters} from './data/metersShort.js';
@@ -94,7 +94,7 @@ export default class App extends React.Component {
                         longitude: meter['geom']['coordinates'][0],
                     };
 
-                    const description = `Status: hi\nOther: hello`;
+                    const description = `Status: hi\nLatitude: ${coords['latitude']}\nLongitude: ${coords['longitude']}`;
                     const title = 'titles';
 
                     return (
@@ -108,6 +108,18 @@ export default class App extends React.Component {
                             <Animated.View style={[styles.markerWrap]}>
                                 <View style={styles.marker}/>
                             </Animated.View>
+
+                            <MapView.Callout
+                                onPress={() => console.log("PRESSED")}
+                                style={styles.calloutStyles}
+                            >
+                                <Text style={styles.calloutTitle}>
+                                    {title}
+                                </Text>
+                                <Text style={styles.calloutText}>
+                                    {description}
+                                </Text>
+                            </MapView.Callout>
                         </MapView.Marker>
                     );
                 })}
@@ -138,4 +150,18 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
     },
+    calloutTitle: {
+        textAlign: 'left',
+        fontWeight: 'bold',
+        fontSize: 16
+    },
+    calloutText: {
+        textAlign: 'left',
+        // fontWeight: 'bold',
+    },
+    calloutStyles: {
+        // width: 100,
+        flex: 1,
+        position: 'relative'
+    }
 });
