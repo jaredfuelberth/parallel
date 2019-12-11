@@ -1,8 +1,7 @@
 import React from 'react';
 import {Button, Dimensions, StyleSheet, Switch, Text, View} from 'react-native';
 import MapView from 'react-native-maps';
-// import $ from 'jquery';
-import {meters} from './data/metersShort.js';
+import {meters} from './data/meters.js';
 import Constants from 'expo-constants';
 import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
