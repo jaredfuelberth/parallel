@@ -19,4 +19,4 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
 class MeterDataSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = OriginalMeterData
-        fields = ['geom']
+        fields = ['geom', 'handicap', 'space', 'a_st', 'b_x', 'c_side']
