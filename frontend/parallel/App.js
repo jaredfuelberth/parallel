@@ -1,11 +1,12 @@
 import React from 'react';
-import {Animated, Dimensions, StyleSheet, Text, View} from 'react-native';
+import {Button, Dimensions, StyleSheet, Switch, Text, View} from 'react-native';
 import MapView from 'react-native-maps';
 // import $ from 'jquery';
 import {meters} from './data/metersShort.js';
 import Constants from 'expo-constants';
 import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
+import getDirections from 'react-native-google-maps-directions';
 
 export default class App extends React.Component {
     constructor(props) {
@@ -21,15 +22,35 @@ export default class App extends React.Component {
                 longitude: -96.702599,
                 latitudeDelta: 0.0222,
                 longitudeDelta: 0.0221,
-            }
+            },
+            switchValue: false,
         };
     }
 
     getTheDatas() {
         // console.log(meters[0]['geom']['coordinates']);
         this.setState({meters: meters})
+    }
 
+    handleGetDirections(coords) {
+        const data = {
+            source: null,
+            destination: {...coords},
+            params: [
+                {
+                    key: "travelmode",
+                    value: "driving"        // may be "walking", "bicycling" or "transit" as well
+                },
+            ],
+            waypoints: []
+        }
 
+        getDirections(data)
+    }
+
+    calloutPressed(coords) {
+        console.log("CALLOUT PRESSED")
+        this.handleGetDirections(coords);
     }
 
     fetchMarkerData() {
@@ -79,6 +100,20 @@ export default class App extends React.Component {
         }
     }
 
+    _handleToggleSwitch = () =>
+        this.setState(state => ({
+            switchValue: !state.switchValue,
+        }));
+
+    renderContent = () => {
+        return (
+            <View>
+                <Text>Get directions to your location</Text>
+
+            </View>
+        )
+    }
+
     render() {
         // console.log("RE-RENDERING");
         return (
@@ -87,42 +122,82 @@ export default class App extends React.Component {
                 region={this.state.region}
                 showsUserLocation={true}
             >
-                {this.state.isLoading ? null : this.state.meters.map((meter, index) => {
-                    // console.log(this.state.meters);
-                    const coords = {
-                        latitude: meter['geom']['coordinates'][1],
-                        longitude: meter['geom']['coordinates'][0],
-                    };
+                {this.state.meters.map((meter, index) => {
+                    if (index % 2 === 0 && (!this.state.switchValue ? true : (meter['handicap'] ? true : false))) {
 
-                    const description = `Status: hi\nLatitude: ${coords['latitude']}\nLongitude: ${coords['longitude']}`;
-                    const title = 'titles';
+                        // console.log(this.state.meters);
+                        const coords = {
+                            latitude: meter['geom']['coordinates'][1],
+                            longitude: meter['geom']['coordinates'][0],
+                        };
 
-                    return (
-                        <MapView.Marker
-                            key={index}
-                            coordinate={coords}
-                            title={title}
-                            description={description}
-                        >
+                        const a_st = meter['a_st'];
+                        const title = a_st ? `${a_st} Street Meter` : 'Parking Meter';
 
-                            <Animated.View style={[styles.markerWrap]}>
-                                <View style={styles.marker}/>
-                            </Animated.View>
+                        const handicap = meter['handicap'];
 
-                            <MapView.Callout
-                                onPress={() => console.log("PRESSED")}
-                                style={styles.calloutStyles}
+
+                        var today = new Date();
+
+                        const space = meter['space'] ? `${meter['space']} parking` : 'Parallel parking'
+
+                        var time = today.toLocaleString('en-US', {hour: 'numeric', minute: 'numeric', hour12: true})
+
+                        // const title = `${a_st ? a_st: }`;
+                        const description = `${handicap ? 'Handicap\n' : 'Standard\n'}\n8am-6pm Mon-Sat\nCurrent time: ${time}\nCoords: (${coords['latitude'].toString().substring(0, 5)}, ${coords['longitude'].toString().substring(0, 5)})\n${space}`;
+
+                        return (
+                            <MapView.Marker
+                                key={index}
+                                coordinate={coords}
+                                title={title}
+                                description={description}
+                                showsMyLocationButton={true}
                             >
-                                <Text style={styles.calloutTitle}>
-                                    {title}
-                                </Text>
-                                <Text style={styles.calloutText}>
-                                    {description}
-                                </Text>
-                            </MapView.Callout>
-                        </MapView.Marker>
-                    );
+
+                                <View style={[styles.markerWrap]}>
+                                    <View
+                                        style={handicap ? {...styles.marker, backgroundColor: "red"} : styles.marker}/>
+                                </View>
+
+                                <MapView.Callout
+                                    onPress={() => {
+                                        console.log("CALLOUT PRESSED")
+                                    }}
+                                    style={styles.calloutStyles}
+                                >
+                                    <Text style={styles.calloutTitle}>
+                                        {title}
+                                    </Text>
+                                    <Text style={styles.calloutText}>
+                                        {description}
+                                    </Text>
+                                    <Button title={'Get Directions'}
+                                            onPress={() => this.calloutPressed(coords)}
+                                    />
+                                </MapView.Callout>
+                            </MapView.Marker>
+                        );
+                    }
                 })}
+
+                <View style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    width: Dimensions.get('window').width,
+                    height: 60,
+                    backgroundColor: "rgba(255,255,255, 0.9)",
+                    borderRadius: '10 10 0 0'
+                }}/>
+
+                <Text style={{position: 'absolute', bottom: 18, right: 70, fontSize: 22, color: "rgba(0,0,0, 0.5)"}}>Toggle
+                    Handicapped</Text>
+                <Switch
+                    onValueChange={this._handleToggleSwitch}
+                    value={this.state.switchValue}
+                    trackColor={'blue'}
+                    style={{position: 'absolute', bottom: 15, right: 10}}
+                />
 
             </MapView>
         );
@@ -149,6 +224,7 @@ const styles = StyleSheet.create({
     markerWrap: {
         alignItems: "center",
         justifyContent: "center",
+        zIndex: 1,
     },
     calloutTitle: {
         textAlign: 'left',
@@ -160,8 +236,17 @@ const styles = StyleSheet.create({
         // fontWeight: 'bold',
     },
     calloutStyles: {
-        // width: 100,
+        width: 200,
         flex: 1,
-        position: 'relative'
+        // position: 'relative',
+    },
+    buttonContainer: {
+        zIndex: 10,
+        elevation: 10,
+        top: 30,
+    },
+    button: {
+        color: 'black',
+        backgroundColor: 'black',
     }
 });
